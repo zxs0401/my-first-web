@@ -18,6 +18,10 @@ cd dist
 # 创建 .nojekyll 文件，避免 GitHub Pages 忽略下划线开头的文件
 touch .nojekyll
 
+# 配置 Git
+git config --local user.email "859509286@qq.com"
+git config --local user.name "zxs0401"
+
 # 初始化 git 仓库
 git init
 git add -A

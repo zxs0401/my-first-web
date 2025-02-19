@@ -26,19 +26,30 @@ export default {
         return
       }
 
-      const users = JSON.parse(localStorage.getItem('users') || '[]')
+      // 从 localStorage 获取注册用户列表
+      let users = []
+      try {
+        const storedUsers = localStorage.getItem('registeredUsers')
+        users = storedUsers ? JSON.parse(storedUsers) : []
+      } catch (e) {
+        console.error('Error parsing stored users:', e)
+        users = []
+      }
+
+      // 验证用户
       const user = users.find(u => 
-        u.username === this.username && u.password === this.password
+        u.username === this.username &&
+        u.password === this.password
       )
 
       if (user) {
+        // 保存登录状态
         localStorage.setItem('isLoggedIn', 'true')
-        localStorage.setItem('currentUser', this.username)
-        this.$parent.isLoggedIn = true
-        this.$router.push({
-          path: '/training',
-          replace: true
-        })
+        localStorage.setItem('currentUser', user.username)
+        localStorage.setItem('lastLoginTime', new Date().toISOString())
+        
+        this.$router.push('/training')
+        window.location.reload()
       } else {
         alert('用户名或密码错误')
       }

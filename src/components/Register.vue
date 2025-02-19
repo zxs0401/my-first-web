@@ -52,26 +52,39 @@ export default {
       }
 
       // 获取已注册用户列表
-      const users = JSON.parse(localStorage.getItem('users') || '[]')
+      let users = []
+      try {
+        const storedUsers = localStorage.getItem('registeredUsers')
+        users = storedUsers ? JSON.parse(storedUsers) : []
+      } catch (e) {
+        console.error('Error parsing stored users:', e)
+        users = []
+      }
       
-      // 检查用户名是否已存在（不区分大小写）
-      if (users.some(user => user.username.toLowerCase() === this.username.toLowerCase())) {
+      // 检查用户名是否已存在
+      if (users.some(user => user.username === this.username)) {
         alert('用户名已存在')
         return
       }
 
       // 添加新用户
-      users.push({
+      const newUser = {
         username: this.username,
         password: this.password,
         createTime: new Date().toISOString()
-      })
+      }
       
-      // 保存用户信息
-      localStorage.setItem('users', JSON.stringify(users))
+      users.push(newUser)
       
-      alert('注册成功')
-      this.$router.push('/')
+      // 保存到 localStorage
+      try {
+        localStorage.setItem('registeredUsers', JSON.stringify(users))
+        alert('注册成功')
+        this.$router.push('/')
+      } catch (e) {
+        console.error('Error saving user:', e)
+        alert('注册失败，请重试')
+      }
     },
     goToLogin() {
       this.$router.push('/')

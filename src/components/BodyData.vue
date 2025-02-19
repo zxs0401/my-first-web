@@ -13,7 +13,7 @@
         </div>
         <div class="input-group">
           <label>体脂率 (%)</label>
-          <input type="number" v-model="bodyData.bodyFat" step="0.1" />
+          <input type="number" v-model="bodyData.bodyFat" step="0.1" readonly class="readonly-input" />
         </div>
         <button @click="saveData" class="save-btn">保存数据</button>
       </div>
@@ -77,6 +77,24 @@ export default {
       }
       return '---'
     },
+    estimatedBodyFat() {
+      // 使用 Deurenberg 公式计算体脂率
+      // 男性：(1.20 × BMI) + (0.23 × 年龄) - 16.2
+      // 女性：(1.20 × BMI) + (0.23 × 年龄) - 5.4
+      const bmi = parseFloat(this.calculateBMI)
+      if (bmi === '---') return '---'
+      
+      // 这里假设为成年人（25岁）和男性
+      // 你可以添加性别和年龄输入来获得更准确的估算
+      const age = 25
+      const isMale = true
+      
+      const bodyFat = isMale
+        ? (1.20 * bmi) + (0.23 * age) - 16.2
+        : (1.20 * bmi) + (0.23 * age) - 5.4
+      
+      return bodyFat.toFixed(1)
+    },
     bmiStatus() {
       const bmi = this.calculateBMI
       if (bmi === '---') return ''
@@ -84,6 +102,14 @@ export default {
       if (bmi < 24) return '正常'
       if (bmi < 28) return '偏重'
       return '肥胖'
+    }
+  },
+  watch: {
+    'bodyData.weight'() {
+      this.updateBodyFat()
+    },
+    'bodyData.height'() {
+      this.updateBodyFat()
     }
   },
   methods: {
@@ -113,6 +139,11 @@ export default {
     },
     formatDate(date) {
       return new Date(date).toLocaleDateString()
+    },
+    updateBodyFat() {
+      if (this.bodyData.weight && this.bodyData.height) {
+        this.bodyData.bodyFat = this.estimatedBodyFat
+      }
     }
   }
 }
@@ -224,5 +255,10 @@ input {
   border-radius: 4px;
   box-shadow: 0 2px 4px rgba(0,0,0,0.1);
   margin-bottom: 30px;
+}
+
+.readonly-input {
+  background-color: #f0f0f0;
+  cursor: not-allowed;
 }
 </style> 

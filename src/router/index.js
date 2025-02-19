@@ -9,12 +9,14 @@ const routes = [
   {
     path: '/',
     name: 'Login',
-    component: HelloWorld
+    component: HelloWorld,
+    meta: { requiresAuth: false }
   },
   {
     path: '/register',
     name: 'Register',
-    component: Register
+    component: Register,
+    meta: { requiresAuth: false }
   },
   {
     path: '/training',
@@ -37,18 +39,27 @@ const routes = [
 ]
 
 const router = createRouter({
-  history: createWebHistory(process.env.NODE_ENV === 'production' ? '/my-first-web/' : '/'),
+  history: createWebHistory('/'),
   routes
 })
 
 // 路由守卫
 router.beforeEach((to, from, next) => {
   const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true'
-  if (to.meta.requiresAuth && !isLoggedIn) {
-    next('/')
-  } else {
-    next()
+  
+  // 如果已登录且访问登录页，重定向到训练计划页
+  if (isLoggedIn && (to.path === '/' || to.path === '/register')) {
+    next('/training')
+    return
   }
+  
+  // 如果未登录且需要认证，重定向到登录页
+  if (!isLoggedIn && to.meta.requiresAuth) {
+    next('/')
+    return
+  }
+  
+  next()
 })
 
 export default router 
